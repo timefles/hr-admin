@@ -35,9 +35,18 @@ module.exports = {
     overlay: {
       warnings: false,
       errors: true
-    }
+    },
     // 因为我们真正的项目有自己的接口 不需要模拟接口,这一行不需要
     // before: require('./mock/mock-server.js')
+    proxy: {
+      '/abc': {
+        target: 'http://ihrm.itheima.net/',
+        changeOrigin: true,
+        pathRewrite: {
+          '^/abc': ''
+        }
+      }
+    }
   },
   configureWebpack: {
     // provide the app's title in webpack's name field, so that
