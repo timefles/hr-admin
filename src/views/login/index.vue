@@ -123,6 +123,7 @@ export default {
             this.$router.push({ path: this.redirect || '/' })
             this.loading = false
           }).catch(() => {
+            // 账号密码不对提示
             this.loading = false
           })
         } else {

@@ -1,64 +1,42 @@
-import router from './router'
+import router from '@/router'
+import NProgress from 'nprogress'
+import 'nprogress/nprogress.css'
 import store from './store'
-import { Message } from 'element-ui'
-import NProgress from 'nprogress' // progress bar
-import 'nprogress/nprogress.css' // progress bar style
-import { getToken } from '@/utils/auth' // get token from cookie
-import getPageTitle from '@/utils/get-page-title'
+// 白名单 默认所有人都是坏人,这几个是好人
+const whiteList = ['/login', '/404']
 
-NProgress.configure({ showSpinner: false }) // NProgress Configuration
-
-const whiteList = ['/login'] // no redirect whitelist
-
-router.beforeEach(async(to, from, next) => {
-  // start progress bar
+// to 去哪 from 来自哪里 next 放行
+// 前置路由守卫
+router.beforeEach(async (to, from, next) => {
+  // 开启进度效果
   NProgress.start()
-
-  // set page title
-  document.title = getPageTitle(to.meta.title)
-
-  // determine whether the user has logged in
-  const hasToken = getToken()
-
-  if (hasToken) {
+  // 权限控制
+  const token = store.state.user.token
+  if (token) {
+    // 如果登录过,就不能再去登录,直接让去后台首页
     if (to.path === '/login') {
-      // if is logged in, redirect to the home page
-      next({ path: '/' })
       NProgress.done()
+      next('/')
     } else {
-      const hasGetUserInfo = store.getters.name
-      if (hasGetUserInfo) {
-        next()
-      } else {
-        try {
-          // get user info
-          await store.dispatch('user/getInfo')
-
-          next()
-        } catch (error) {
-          // remove token and go to login page to re-login
-          await store.dispatch('user/resetToken')
-          Message.error(error || 'Has Error')
-          next(`/login?redirect=${to.path}`)
-          NProgress.done()
-        }
+      if (!store.state.user.userInfo.id) {
+        // 这块ajax只会发送一次,优化了一下
+        // 当用户手里面有token并且访问的不是登录页面,那就应该请求个人资料
+        const userInfo = await store.dispatch('user/getInfo')
+        console.log(userInfo.roles.menus)
+        store.dispatch('permission/filter', userInfo.roles.menus)
       }
+      next() // 放行
     }
   } else {
-    /* has no token*/
-
-    if (whiteList.indexOf(to.path) !== -1) {
-      // in the free login whitelist, go directly
+    if (whiteList.includes(to.path)) {
       next()
     } else {
-      // other pages that do not have permission to access are redirected to the login page.
-      next(`/login?redirect=${to.path}`)
-      NProgress.done()
+      next('/login')
     }
   }
 })
 
 router.afterEach(() => {
-  // finish progress bar
+  // 结束进度效果
   NProgress.done()
 })
