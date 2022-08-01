@@ -10,9 +10,10 @@ const mutations = {
 }
 const actions = {
   filter (context, menus) {
-    const newRoutes = asyncRoutes.filter(item => menus.includes(item.children[0].name))
+    const newRoutes = asyncRoutes.filter(item => menus.includes(item.meta.name))
     // [...newRoutes, ...constantRoutes]静态路由+部分筛选过的动态路由合并
     context.commit('setRoutes', [...constantRoutes, ...newRoutes])
+    return newRoutes
   }
 }
 export default {

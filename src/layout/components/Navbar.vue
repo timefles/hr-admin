@@ -28,18 +28,40 @@
         </el-dropdown-menu>
       </el-dropdown>
     </div>
+    <div
+      style="float: right; height: 100%; line-height: 60px; margin-right: 20px"
+    >
+      <theme-picker class="picker" />
+      <FullScreen></FullScreen>
+      <el-dropdown @command="handleCommand">
+        <span>
+          <svg-icon
+            icon-class="language"
+            style="color: #fff; font-size: 20px"
+          ></svg-icon>
+        </span>
+        <el-dropdown-menu slot="dropdown">
+          <el-dropdown-item command="zh">中文</el-dropdown-item>
+          <el-dropdown-item command="en">en</el-dropdown-item>
+        </el-dropdown-menu>
+      </el-dropdown>
+    </div>
   </div>
 </template>
 
 <script>
+import i18n from '@/lang'
 import { mapGetters } from 'vuex'
 import Breadcrumb from '@/components/Breadcrumb'
 import Hamburger from '@/components/Hamburger'
+import Cookies from 'js-cookie'
+import ThemePicker from '@/components/ThemePicker'
 
 export default {
   components: {
     Breadcrumb,
-    Hamburger
+    Hamburger,
+    ThemePicker
   },
   computed: {
     ...mapGetters([
@@ -55,6 +77,12 @@ export default {
     async logout () {
       await this.$store.dispatch('user/logout')
       this.$router.push(`/login?redirect=${this.$route.fullPath}`)
+    },
+    handleCommand (command) {
+      console.log(command)
+      i18n.locale = command
+      // 持久化
+      Cookies.set('locale', command)
     }
   }
 }
@@ -158,5 +186,10 @@ export default {
 }
 .user-dropdown {
   color: #fff;
+}
+.picker {
+  vertical-align: bottom;
+  height: 46px;
+  margin-right: 10px;
 }
 </style>

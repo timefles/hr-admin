@@ -32,7 +32,11 @@ import '@/permission' // permission control
 // set ElementUI lang to EN
 // Vue.use(ElementUI, { locale })
 // 如果想要中文版 element-ui，按如下方式声明
-Vue.use(ElementUI)
+import i18n from '@/lang'
+
+Vue.use(ElementUI, {
+  i18n: (key, value) => i18n.t(key, value)
+})
 
 Vue.config.productionTip = false
 
@@ -59,9 +63,40 @@ import Print from 'vue-print-nb'
 // Global instruction
 Vue.use(Print)
 
+import mixins from './mixins'
+Vue.mixin(mixins)
+
+// // 国际化
+// import VueI18n from 'vue-i18n'
+// Vue.use(VueI18n)
+// // 准备翻译的语言环境信息
+// const messages = {
+//   en: {
+//     message: {
+//       hello: 'hello world'
+//     }
+//   },
+//   ja: {
+//     message: {
+//       hello: 'こんにちは、世界'
+//     }
+//   },
+//   de: {
+//     message: {
+//       hello: 'Guten Morgen 世界'
+//     }
+//   }
+// }
+// // 通过选项创建 VueI18n 实例
+// const i18n = new VueI18n({
+//   locale: 'de', // 设置地区
+//   messages // 设置地区信息
+// })
+
 new Vue({
   el: '#app',
   router,
   store,
+  i18n,
   render: h => h(App)
 })

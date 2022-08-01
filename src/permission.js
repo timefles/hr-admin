@@ -21,9 +21,13 @@ router.beforeEach(async (to, from, next) => {
       if (!store.state.user.userInfo.id) {
         // 这块ajax只会发送一次,优化了一下
         // 当用户手里面有token并且访问的不是登录页面,那就应该请求个人资料
-        const userInfo = await store.dispatch('user/getInfo')
-        console.log(userInfo.roles.menus)
-        store.dispatch('permission/filter', userInfo.roles.menus)
+        const { roles } = await store.dispatch('user/getInfo')
+        console.log(roles.menus)
+        // store.dispatch('permission/filter', roles.menus)
+        // newRoutes就是筛选之后的动态路由表
+        const newRoutes = await store.dispatch('permission/filter', roles.menus)
+        router.addRoutes([...newRoutes, { path: '*', redirect: '/404', hidden: true }])
+        next(to.path)
       }
       next() // 放行
     }
